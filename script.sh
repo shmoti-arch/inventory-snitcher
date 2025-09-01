@@ -61,4 +61,6 @@ if [ "$choice" = 1 ]; then
         ansi --red "error! HTTP status: $response"
         cat /tmp/response.json
     fi
+elif [ "$choice" = 2 ]; then
+     exit 1
 fi
