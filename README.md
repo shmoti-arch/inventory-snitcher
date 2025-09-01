@@ -8,7 +8,7 @@
 ## installation ⚡︎
 
 ```bash
-git clone https://github.com/shmoti-arch/inventory-snitcher
+git clone https://github.com/shmoti-arch/inventory-snitcher.git
 cd inventory-snitcher
 chmod +x script.sh
 ./script.sh
