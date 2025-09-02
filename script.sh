@@ -14,7 +14,8 @@ ansi --magenta "                         github.com/shmoti-arch/inventory-snitch
 ansi --magenta "Choose a number between 1 to 2"
 
 echo "[1] --> Snitch inventory (default-models)"
-echo "[2] --> Exit"
+echo "[2] --> Settings"
+echo "[3] --> Exit"
 
 keyword=''
 
@@ -33,19 +34,32 @@ if [ "$choice" = 1 ]; then
         ansi --green "success!"
         echo "proceeding with username: "  
         jq -r '.data[0].name' /tmp/response.json
-    
-        clear
-        echo "you need to create a Creator Store API to proceed"
-        API_KEY=""
-        read -p "--> " API_KEY
 
-        echo "making request to toolbox-service API..."
+        if [ -s "api_key.txt" ]; then
+           clear
+           key=$(<api_key.txt)
+           echo "making request to toolbox-service API..."
+           HTTP_CODE=$(curl -w "%{http_code}" -X GET "https://apis.roblox.com/toolbox-service/v2/assets:search?searchCategoryType=Model&userId=$userID&maxPageSize=40" \
+             -H "x-api-key: $key" \
+             -H "User-Agent: Roblox/WinInet" \
+             -H "Accept: application/json" \
+             -o /tmp/responsemodels.json)
+        else
+            clear
+            echo "you need to create a Creator Store API to proceed"
+            API_KEY=""
+            read -p "--> " API_KEY
     
-        HTTP_CODE=$(curl -w "%{http_code}" -X GET "https://apis.roblox.com/toolbox-service/v2/assets:search?searchCategoryType=Model&userId=$userID" \
+            echo "making request to toolbox-service API..."
+
+            HTTP_CODE=$(curl -w "%{http_code}" -X GET "https://apis.roblox.com/toolbox-service/v2/assets:search?searchCategoryType=Model&userId=$userID&maxPageSize=40" \
              -H "x-api-key: $API_KEY" \
              -H "User-Agent: Roblox/WinInet" \
              -H "Accept: application/json" \
              -o /tmp/responsemodels.json)
+        fi
+    
+        
     
         echo "status Code: $HTTP_CODE"
     
@@ -61,6 +75,22 @@ if [ "$choice" = 1 ]; then
         ansi --red "error! HTTP status: $response"
         cat /tmp/response.json
     fi
-elif [ "$choice" = 2 ]; then
+elif [ "$choice" = 3 ]; then
      exit 1
+elif [ "$choice" = 2 ]; then
+     clear
+     ansi --magenta "SETTINGS"
+     setting=""
+     echo "[1] - save API key"
+     echo "[2] - exit"
+     read -p "--> " setting
+     if [ "$setting" = 1 ]; then
+        key=""
+        read -p "enter ur key --> " key
+        echo "key saved in a file: api_key.txt!"
+        touch api_key.txt
+        echo "$key" > api_key.txt
+     elif [ "$setting" = 2 ]; then
+        exit 1
+     fi
 fi
